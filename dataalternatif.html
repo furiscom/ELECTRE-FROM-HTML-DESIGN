@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SPK Electre - Data Alternatif</title>
+    <link rel="stylesheet" href="Assets/styles/dataalternatif.css">
+    <!-- Font Awesome untuk icon -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <div class="container">
+        <!-- Sidebar -->
+        <nav class="sidebar">
+            <div class="logo">
+            <!--    <img src="logo.png" alt="SPK Electre"> --> 
+                <span>SPK ELECTRE</span>
+            </div>
+            
+            <ul class="nav-links">
+                <li><a href="dasboardadmin.html"><i class="fas fa-tachometer-alt"></i> Dashboard</a></li>
+                <li class="section-title">MASTER DATA</li>
+                <li><a href="datakriteria.html"><i class="fas fa-list"></i> Data Kriteria</a></li>
+                <li class="active"><a href="#"><i class="fas fa-users"></i> Data Alternatif</a></li>
+                <li><a href="datapenilaian.html"><i class="fas fa-star"></i> Data Penilaian</a></li>
+                <li><a href="#"><i class="fas fa-calculator"></i> Data Perhitungan</a></li>
+                <li><a href="datanilaiakhir.html"><i class="fas fa-chart-bar"></i> Data Hasil Akhir</a></li>
+                <li class="section-title">MASTER USER</li>
+                <li><a href="datapengguna.html"><i class="fas fa-user"></i> Data Pengguna</a></li>
+            </ul>
+        </nav>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <header class="top-bar">
+                <div class="page-title">
+                    <i class="fas fa-users"></i>
+                    <h1>Data Alternatif</h1>
+                </div>
+                <div class="admin-profile">
+                    <span>ADMIN</span>
+                    <img src="admin-avatar.png" alt="Admin">
+                </div>
+            </header>
+
+            <div class="content">
+                <div class="card">
+                    <div class="card-header">
+                        <i class="fas fa-table"></i>
+                        <span>Daftar Data Alternatif</span>
+                        <button class="btn-add">
+                            <i class="fas fa-plus"></i> Tambah Data
+                        </button>
+                    </div>
+                    
+                    <div class="table-controls">
+                        <div class="entries-control">
+                            Show 
+                            <select>
+                                <option>10</option>
+                                <option>25</option>
+                                <option>50</option>
+                            </select>
+                            entries
+                        </div>
+                        <div class="search-control">
+                            Search: <input type="text" placeholder="Search...">
+                        </div>
+                    </div>
+
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>No</th>
+                                <th>Kode Alternatif</th>
+                                <th>Nama Alternatif</th>
+                                <th>Aksi</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>1</td>
+                                <td>A01</td>
+                                <td>Mahasiswa 1</td>
+                                <td>
+                                    <button class="btn-edit"><i class="fas fa-edit"></i></button>
+                                    <button class="btn-delete"><i class="fas fa-trash"></i></button>
+                                </td>
+                            </tr>
+                            <!-- Tambahkan baris data lainnya sesuai kebutuhan -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </main>
+    </div>
+</body>
+</html>

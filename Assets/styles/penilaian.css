@@ -1,0 +1,128 @@
+/* Global Styles */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: Arial, sans-serif;
+}
+
+.container {
+    display: flex;
+    min-height: 100vh;
+}
+
+/* Sidebar Styles */
+.sidebar {
+    width: 250px;
+    background: #FF8C00; /* Warna oranye */
+    color: white;
+    padding: 20px 0;
+}
+
+.nav-links {
+    list-style: none;
+}
+
+.nav-links li {
+    padding: 10px 20px;
+}
+
+.nav-links li.section-title {
+    font-size: 12px;
+    color: rgba(255, 255, 255, 0.7);
+    padding: 20px 20px 10px;
+}
+
+.nav-links li.active {
+    background: rgba(255, 255, 255, 0.1);
+}
+
+.nav-links a {
+    color: white;
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+/* Main Content Styles */
+.main-content {
+    flex: 1;
+    background: #f4f4f4;
+}
+
+.content {
+    padding: 30px;
+}
+
+.card {
+    background: white;
+    border-radius: 5px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.card-header {
+    padding: 15px;
+    border-bottom: 1px solid #eee;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: #FF8C00; /* Warna oranye */
+    color: white;
+}
+
+/* Table Controls */
+.table-controls {
+    padding: 15px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.entries-control select {
+    margin: 0 5px;
+    padding: 5px;
+    border: 1px solid #ddd;
+}
+
+.search-control input {
+    padding: 5px;
+    margin-left: 5px;
+    border: 1px solid #ddd;
+}
+
+/* Table Styles */
+.data-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.data-table th,
+.data-table td {
+    padding: 12px 15px;
+    text-align: left;
+    border-bottom: 1px solid #eee;
+}
+
+.data-table thead th {
+    background: #FFA500; /* Warna oranye untuk header tabel */
+    color: white;
+}
+
+.data-table tbody tr:hover {
+    background: #fff3e6; /* Warna hover yang sesuai dengan tema oranye */
+}
+
+/* Button Styles */
+.btn-edit {
+    border: none;
+    padding: 6px 10px;
+    border-radius: 4px;
+    cursor: pointer;
+    background: #FFA500; /* Warna oranye */
+    color: white;
+}
+
+.btn-edit:hover {
+    background: #FF8C00; /* Warna oranye yang lebih gelap untuk hover */
+}

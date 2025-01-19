@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SPK Electre - Data Penilaian</title>
+    <link rel="stylesheet" href="Assets/styles/penilaian.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <div class="container">
+        <!-- Sidebar -->
+        <nav class="sidebar">
+            <ul class="nav-links">
+                <li><a href="#"><i class="fas fa-list"></i> Data Kriteria</a></li>
+                <li><a href="#"><i class="fas fa-users"></i> Data Alternatif</a></li>
+                <li class="active"><a href="#"><i class="fas fa-star"></i> Data Penilaian</a></li>
+                <li><a href="#"><i class="fas fa-calculator"></i> Data Perhitungan</a></li>
+                <li><a href="#"><i class="fas fa-chart-bar"></i> Data Hasil Akhir</a></li>
+                <li class="section-title">MASTER USER</li>
+                <li><a href="#"><i class="fas fa-user"></i> Data Pengguna</a></li>
+            </ul>
+        </nav>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <div class="content">
+                <div class="card">
+                    <div class="card-header">
+                        <i class="fas fa-table"></i>
+                        <span>Daftar Data Penilaian</span>
+                    </div>
+                    
+                    <div class="table-controls">
+                        <div class="entries-control">
+                            Show 
+                            <select id="entriesSelect">
+                                <option>10</option>
+                                <option>25</option>
+                                <option>50</option>
+                            </select>
+                            entries
+                        </div>
+                        <div class="search-control">
+                            Search: <input type="text" id="searchInput" placeholder="Search...">
+                        </div>
+                    </div>
+
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>No</th>
+                                <th>Kode Alternatif</th>
+                                <th>Nama Alternatif</th>
+                                <th>C01</th>
+                                <th>C02</th>
+                                <th>C03</th>
+                                <th>C04</th>
+                                <th>C05</th>
+                                <th>C06</th>
+                                <th>Aksi</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tableBody">
+                            <!-- Data akan diisi melalui JavaScript -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </main>
+    </div>
+    <script src="Assets/styles/penilaianjs.js"></script>
+</body>
+</html>
