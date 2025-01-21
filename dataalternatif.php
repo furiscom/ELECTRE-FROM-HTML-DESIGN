@@ -75,6 +75,7 @@ $result = $conn->query($sql);
                 <li><a href="datanilaiakhir.php"><i class="fas fa-chart-bar"></i> Data Hasil Akhir</a></li>
                 <li class="section-title">MASTER USER</li>
                 <li><a href="datapengguna.php"><i class="fas fa-user"></i> Data Pengguna</a></li>
+                <li><a href="logout.php">Logout</a></li>
             </ul>
         </nav>
 

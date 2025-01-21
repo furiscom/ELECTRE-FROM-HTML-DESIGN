@@ -68,6 +68,7 @@ $result = $conn->query($sql);
             <li><a href="dataperhitungan.php">Data Perhitungan</a></li>
             <li><a href="datanilaiakhir.php">Data Hasil Akhir</a></li>
             <li><a href="datapengguna.php">Data Pengguna</a></li>
+            <li><a href="logout.php">Logout</a></li>
         </ul>
     </div>
 
@@ -88,11 +89,8 @@ $result = $conn->query($sql);
                         <input type="text" id="nama_kriteria" name="nama_kriteria" required><br><br>
                         <label for="bobot">Bobot:</label>
                         <input type="number" id="bobot" name="bobot" required><br><br>
-                        <label for="jenis">Jenis:</label>
-                        <select id="jenis" name="jenis">
-                          <option value="benefit">Benefit</option>
-                          <option value="cost">Cost</option>
-                        </select><br><br>
+                        
+                        
                         <button type="submit" id="btn-submit">Simpan</button>
                     </form>
                 </div>
@@ -105,7 +103,7 @@ $result = $conn->query($sql);
                         <th>Kode Kriteria</th>
                         <th>Nama Kriteria</th>
                         <th>Bobot</th>
-                        <th>Jenis</th>
+                       
                         <th>Aksi</th>
                     </tr>
                 </thead>
@@ -119,7 +117,7 @@ $result = $conn->query($sql);
                             echo "<td>" . $row['kode_kriteria'] . "</td>";
                             echo "<td>" . $row['nama_kriteria'] . "</td>";
                             echo "<td>" . $row['bobot'] . "</td>";
-                            echo "<td>" . $row['jenis'] . "</td>";
+                       
                             echo "<td>";
                             echo "<button class='btn-edit' onclick='editKriteria(\"" . $row['kode_kriteria'] . "\")'><i class='fa fa-edit'></i></button>";
                             echo "<button class='btn-delete' onclick='deleteKriteria(\"" . $row['kode_kriteria'] . "\")'><i class='fa fa-trash'></i></button>";
@@ -163,7 +161,7 @@ $result = $conn->query($sql);
                 document.getElementById("kode_kriteria").value = kriteria.kode_kriteria;
                 document.getElementById("nama_kriteria").value = kriteria.nama_kriteria;
                 document.getElementById("bobot").value = kriteria.bobot;
-                document.getElementById("jenis").value = kriteria.jenis;
+                
                 // Buka modal setelah form terisi
                 document.getElementById("myModal").style.display = "block";
                 document.getElementById("btn-submit").textContent = "Update"; // Ubah teks tombol ke "Update"
@@ -198,7 +196,7 @@ $result = $conn->query($sql);
         var kode_kriteria = document.getElementById("kode_kriteria").value;
         var nama_kriteria = document.getElementById("nama_kriteria").value;
         var bobot = document.getElementById("bobot").value;
-        var jenis = document.getElementById("jenis").value;
+        
 
         // Kirim data ke server menggunakan AJAX
         var xhr = new XMLHttpRequest();
@@ -211,7 +209,7 @@ $result = $conn->query($sql);
                 location.reload();
             }
         };
-        xhr.send("kode_kriteria_lama=" + kode_kriteria_lama + "&kode_kriteria=" + kode_kriteria + "&nama_kriteria=" + nama_kriteria + "&bobot=" + bobot + "&jenis=" + jenis);
+        xhr.send("kode_kriteria_lama=" + kode_kriteria_lama + "&kode_kriteria=" + kode_kriteria + "&nama_kriteria=" + nama_kriteria + "&bobot=" + bobot );
     });
 </script>
 

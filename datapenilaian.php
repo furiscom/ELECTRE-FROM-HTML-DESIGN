@@ -5,21 +5,26 @@ if ($conn->connect_error) {
     die("Koneksi database gagal: " . $conn->connect_error);
 }
 
-// Query untuk mengambil data alternatif
+// Ambil data alternatif
 $sqlAlternatif = "SELECT * FROM alternatif";
 $resultAlternatif = $conn->query($sqlAlternatif);
 
-// Query untuk mengambil data kriteria
+// Ambil data kriteria
 $sqlKriteria = "SELECT * FROM kriteria";
 $resultKriteria = $conn->query($sqlKriteria);
 
-// Query untuk mengambil data penilaian
-$sqlPenilaian = "SELECT p.id_penilaian, a.nama_alternatif, k.nama_kriteria, p.nilai
+// Ambil data penilaian
+$sqlPenilaian = "SELECT p.*, a.nama_alternatif, k.nama_kriteria
                 FROM penilaian p
                 INNER JOIN alternatif a ON p.kode_alternatif = a.kode_alternatif
                 INNER JOIN kriteria k ON p.kode_kriteria = k.kode_kriteria";
 $resultPenilaian = $conn->query($sqlPenilaian);
 
+// Inisialisasi array untuk menyimpan data penilaian
+$penilaian = [];
+while ($row = $resultPenilaian->fetch_assoc()) {
+    $penilaian[$row['nama_alternatif']][$row['nama_kriteria']] = $row['nilai'];
+}
 ?>
 
 <!DOCTYPE html>
@@ -31,27 +36,26 @@ $resultPenilaian = $conn->query($sqlPenilaian);
     <link rel="stylesheet" href="Assets/styles/penilaian.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
-        /* Tambahkan CSS untuk modal */
+        /* CSS untuk modal */
         .modal {
-            display: none; 
-            position: fixed; 
-            z-index: 1; 
+            display: none;
+            position: fixed;
+            z-index: 1;
             left: 0;
             top: 0;
-            width: 100%; 
-            height: 100%; 
-            overflow: auto; 
-            background-color: rgb(0,0,0); 
-            background-color: rgba(0,0,0,0.4); 
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0, 0, 0, 0.4);
             padding-top: 60px;
         }
 
         .modal-content {
             background-color: #fefefe;
-            margin: 5% auto; 
+            margin: 5% auto;
             padding: 20px;
             border: 1px solid #888;
-            width: 60%; 
+            width: 40%;
         }
 
         .close-btn {
@@ -59,12 +63,33 @@ $resultPenilaian = $conn->query($sqlPenilaian);
             float: right;
             font-size: 28px;
             font-weight: bold;
+            cursor: pointer;
         }
 
-        .close-btn:hover,
-        .close-btn:focus {
-            color: black;
-            text-decoration: none;
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+        }
+
+        .form-group input,
+        .form-group select {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+
+        .btn-submit {
+            background-color: #28a745;
+            color: white;
+            padding: 8px 12px;
+            border: none;
+            border-radius: 4px;
             cursor: pointer;
         }
     </style>
@@ -82,7 +107,7 @@ $resultPenilaian = $conn->query($sqlPenilaian);
                 <li><a href="datakriteria.php"><i class="fas fa-list"></i> Data Kriteria</a></li>
                 <li><a href="dataalternatif.php"><i class="fas fa-users"></i> Data Alternatif</a></li>
                 <li class="active"><a href="#"><i class="fas fa-star"></i> Data Penilaian</a></li>
-                <li><a href="#"><i class="fas fa-calculator"></i> Data Perhitungan</a></li>
+                <li><a href="dataperhitungan.php"><i class="fas fa-calculator"></i> Data Perhitungan</a></li>
                 <li><a href="datanilaiakhir.php"><i class="fas fa-chart-bar"></i> Data Hasil Akhir</a></li>
                 <li class="section-title">MASTER USER</li>
                 <li><a href="datapengguna.php"><i class="fas fa-user"></i> Data Pengguna</a></li>
@@ -123,23 +148,38 @@ $resultPenilaian = $conn->query($sqlPenilaian);
                         </thead>
                         <tbody>
                             <?php
-                            if ($resultPenilaian->num_rows > 0) {
-                                $no = 1;
-                                while ($row = $resultPenilaian->fetch_assoc()) {
-                                    echo "<tr>";
-                                    echo "<td>" . $no . "</td>";
-                                    echo "<td>" . $row['nama_alternatif'] . "</td>";
-                                    echo "<td>" . $row['nama_kriteria'] . "</td>";
-                                    echo "<td>" . $row['nilai'] . "</td>";
+                            $no = 1;
+                            // Iterasi melalui data alternatif
+                            while ($rowAlternatif = $resultAlternatif->fetch_assoc()) {
+                                $kodeAlternatif = $rowAlternatif['kode_alternatif'];
+                                $namaAlternatif = $rowAlternatif['nama_alternatif'];
+                                echo "<tr>";
+                                echo "<td>" . $no++ . "</td>";
+                                echo "<td>" . $namaAlternatif . "</td>";
+
+                                // Iterasi melalui data kriteria
+                                $resultKriteria->data_seek(0); // Reset pointer result kriteria
+                                while ($rowKriteria = $resultKriteria->fetch_assoc()) {
+                                    $kodeKriteria = $rowKriteria['kode_kriteria'];
+                                    $namaKriteria = $rowKriteria['nama_kriteria'];
+                                    $nilai = isset($penilaian[$namaAlternatif][$namaKriteria]) ? $penilaian[$namaAlternatif][$namaKriteria] : '';
+
                                     echo "<td>";
-                                    echo "<button class=\"btn-edit\" onclick=\"editPenilaian('" . $row['id_penilaian'] . "')\"><i class=\"fas fa-edit\"></i></button>";
-                                    echo "<button class=\"btn-delete\" onclick=\"deletePenilaian('" . $row['id_penilaian'] . "')\"><i class=\"fas fa-trash\"></i></button>";
+                                    if ($nilai !== '') {
+                                        echo $nilai;
+                                    } else {
+                                        // Menampilkan tombol "Beri Nilai" jika belum ada nilai
+                                        echo "<button class='btn-edit' onclick=\"openModal('$kodeAlternatif', '$kodeKriteria')\">Beri Nilai</button>";
+                                    }
                                     echo "</td>";
-                                    echo "</tr>";
-                                    $no++;
                                 }
-                            } else {
-                                echo "<tr><td colspan='5'>Tidak ada data penilaian.</td></tr>";
+
+                                // Menampilkan tombol edit dan delete
+                                echo "<td>";
+                                echo "<button class='btn-edit' onclick=\"openModal('$kodeAlternatif')\"><i class='fas fa-edit'></i></button>";
+                                echo "<button class='btn-delete' onclick=\"deleteData('$kodeAlternatif')\"><i class='fas fa-trash'></i></button>";
+                                echo "</td>";
+                                echo "</tr>";
                             }
                             ?>
                         </tbody>
@@ -150,84 +190,36 @@ $resultPenilaian = $conn->query($sqlPenilaian);
             <div id="dataModal" class="modal">
                 <div class="modal-content">
                     <span class="close-btn" onclick="closeModal()">&times;</span>
-                    <h2>Tambah/Edit Data Penilaian</h2>
+                    <h2>Beri Penilaian</h2>
                     <form id="dataForm">
-                        <input type="hidden" id="id_penilaian" name="id_penilaian">
-                        <div class="form-group">
-                            <label for="kode_alternatif">Alternatif:</label>
-                            <select id="kode_alternatif" name="kode_alternatif">
-                                <?php
-                                if ($resultAlternatif->num_rows > 0) {
-                                    while ($row = $resultAlternatif->fetch_assoc()) {
-                                        echo "<option value='" . $row['kode_alternatif'] . "'>" . $row['nama_alternatif'] . "</option>";
-                                    }
-                                }
-                                ?>
-                            </select>
-                        </div>
-                        <div class="form-group">
-                            <label for="kode_kriteria">Kriteria:</label>
-                            <select id="kode_kriteria" name="kode_kriteria">
-                                <?php
-                                if ($resultKriteria->num_rows > 0) {
-                                    while ($row = $resultKriteria->fetch_assoc()) {
-                                        echo "<option value='" . $row['kode_kriteria'] . "'>" . $row['nama_kriteria'] . "</option>";
-                                    }
-                                }
-                                ?>
-                            </select>
-                        </div>
+                        <input type="hidden" id="kode_alternatif" name="kode_alternatif">
+                        <input type="hidden" id="kode_kriteria" name="kode_kriteria">
                         <div class="form-group">
                             <label for="nilai">Nilai:</label>
                             <input type="number" id="nilai" name="nilai" required>
                         </div>
-                        <button type="submit" class="btn-submit" id="btn-submit">Simpan</button>
+                        <button type="submit" class="btn-submit">Simpan</button>
                     </form>
                 </div>
             </div>
+
         </main>
     </div>
 
-    <?php
-    // Tutup koneksi database
-    $conn->close();
-    ?>
-
     <script>
-        // Fungsi untuk membuka modal
-        function openModal() {
-            document.getElementById("dataModal").style.display = "block";
-            document.getElementById("dataForm").reset();
-            document.getElementById("id_penilaian").value = "";
-            document.getElementById("btn-submit").textContent = "Simpan";
+        function openModal(kodeAlternatif = null, kodeKriteria = null) {
+            document.getElementById('dataModal').style.display = 'block';
+            if (kodeAlternatif !== null) {
+                document.getElementById('kode_alternatif').value = kodeAlternatif;
+            }
+            if (kodeKriteria !== null) {
+                document.getElementById('kode_kriteria').value = kodeKriteria;
+            }
         }
 
-        // Fungsi untuk menutup modal
-        function closeModal() {
-            document.getElementById("dataModal").style.display = "none";
-        }
-
-        // Fungsi untuk edit data
-        function editPenilaian(id_penilaian) {
-            var xhr = new XMLHttpRequest();
-            xhr.open("GET", "get_penilaian.php?id_penilaian=" + id_penilaian, true);
-            xhr.onreadystatechange = function() {
-                if (this.readyState == 4 && this.status == 200) {
-                    var penilaian = JSON.parse(this.responseText);
-                    document.getElementById("id_penilaian").value = penilaian.id_penilaian;
-                    document.getElementById("kode_alternatif").value = penilaian.kode_alternatif;
-                    document.getElementById("kode_kriteria").value = penilaian.kode_kriteria;
-                    document.getElementById("nilai").value = penilaian.nilai;
-                    document.getElementById("dataModal").style.display = "block";
-                    document.getElementById("btn-submit").textContent = "Update";
-                }
-            };
-            xhr.send();
-        }
-
-        // Fungsi untuk delete data
-        function deletePenilaian(id_penilaian) {
-            if (confirm("Apakah Anda yakin ingin menghapus penilaian ini?")) {
+        function deleteData(kodeAlternatif) {
+            if (confirm("Apakah Anda yakin ingin menghapus penilaian alternatif ini?")) {
+                // Kirim permintaan hapus ke server (Anda perlu membuat file delete_penilaian.php)
                 var xhr = new XMLHttpRequest();
                 xhr.open("POST", "delete_penilaian.php", true);
                 xhr.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
@@ -237,19 +229,22 @@ $resultPenilaian = $conn->query($sqlPenilaian);
                         location.reload();
                     }
                 };
-                xhr.send("id_penilaian=" + id_penilaian);
+                xhr.send("kode_alternatif=" + kodeAlternatif);
             }
         }
 
-        // Event listener untuk form submit (AJAX)
-        document.getElementById("dataForm").addEventListener("submit", function(event) {
+        function closeModal() {
+            document.getElementById('dataModal').style.display = 'none';
+        }
+
+        document.getElementById('dataForm').addEventListener('submit', function(event) {
             event.preventDefault();
 
-            var id_penilaian = document.getElementById("id_penilaian").value;
-            var kode_alternatif = document.getElementById("kode_alternatif").value;
-            var kode_kriteria = document.getElementById("kode_kriteria").value;
-            var nilai = document.getElementById("nilai").value;
+            var kodeAlternatif = document.getElementById('kode_alternatif').value;
+            var kodeKriteria = document.getElementById('kode_kriteria').value;
+            var nilai = document.getElementById('nilai').value;
 
+            // Kirim data ke server menggunakan AJAX
             var xhr = new XMLHttpRequest();
             xhr.open("POST", "simpan_penilaian.php", true);
             xhr.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
@@ -260,7 +255,7 @@ $resultPenilaian = $conn->query($sqlPenilaian);
                     location.reload();
                 }
             };
-            xhr.send("id_penilaian=" + id_penilaian + "&kode_alternatif=" + kode_alternatif + "&kode_kriteria=" + kode_kriteria + "&nilai=" + nilai);
+            xhr.send("kode_alternatif=" + kodeAlternatif + "&kode_kriteria=" + kodeKriteria + "&nilai=" + nilai);
         });
     </script>
 </body>

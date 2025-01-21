@@ -110,7 +110,9 @@ $result = $conn->query($sql);
           <span class="section-title">MASTER USER</span>
           <a href="#" class="menu-item active">Data Pengguna</a>
         </div>
+        <a href="logout.php" class="menu-item">Logout</a>
       </div>
+
     </div>
 
     <div class="main-content">

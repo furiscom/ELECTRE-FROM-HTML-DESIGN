@@ -185,55 +185,42 @@ $matrix_agregat = agregat($matrix_dominasi_concordance, $matrix_dominasi_discord
 $alternatif_dominan = alternatifDominan($matrix_agregat);
 
 // --- Perankingan ---
+
+// Query untuk mengambil data hasil perankingan (sama seperti di datanilaiakhir.php)
+$sql = "SELECT
+            a.nama_alternatif,
+            SUM(p.nilai * k.bobot) AS total,
+            (
+                SELECT COUNT(*) + 1
+                FROM (
+                    SELECT a2.kode_alternatif, SUM(p2.nilai * k2.bobot) AS total2
+                    FROM alternatif a2
+                    INNER JOIN penilaian p2 ON a2.kode_alternatif = p2.kode_alternatif
+                    INNER JOIN kriteria k2 ON p2.kode_kriteria = k2.kode_kriteria
+                    GROUP BY a2.kode_alternatif
+                ) AS sub
+                WHERE sub.total2 > SUM(p.nilai * k.bobot)
+            ) AS `rank`
+        FROM
+            alternatif a
+        INNER JOIN
+            penilaian p ON a.kode_alternatif = p.kode_alternatif
+        INNER JOIN
+            kriteria k ON p.kode_kriteria = k.kode_kriteria
+        GROUP BY
+            a.nama_alternatif";
+
+$result = $conn->query($sql);
+
+// Simpan hasil perankingan ke dalam array
 $peringkat = [];
-$alternatif_tersisa = $alternatif; 
-while (!empty($alternatif_tersisa)) {
-    $alternatif_dominan_temp = alternatifDominan($matrix_agregat);
-
-    // Jika tidak ada alternatif dominan, hentikan perulangan
-    if (empty($alternatif_dominan_temp)) {
-        break;
-    }
-
-    foreach ($alternatif_dominan_temp as $kode_alternatif) {
-        $peringkat[] = $kode_alternatif;
-        unset($alternatif_tersisa[$kode_alternatif]);
-        // Hapus baris dan kolom alternatif dominan dari matriks agregat
-        unset($matrix_agregat[$kode_alternatif]);
-        foreach ($matrix_agregat as $key => $value) {
-            unset($matrix_agregat[$key][$kode_alternatif]);
-        }
+if ($result->num_rows > 0) {
+    while($row = $result->fetch_assoc()) {
+        $peringkat[] = $row;
     }
 }
+
 // --- Akhir perankingan ---
-
-// --- Menentukan alternatif terbaik ---
-
-// Inisialisasi array untuk menyimpan skor dan ranking
-$skor = array_fill(0, count($alternatif), 0); 
-$ranking = array_fill(0, count($alternatif), 0);
-
-// Hitung skor untuk setiap alternatif berdasarkan jumlah dominasi pada matriks agregat
-foreach ($matrix_agregat as $i => $row) {
-    foreach ($row as $j => $value) {
-        if ($value == 1) {
-            $skor[$i]++;
-        }
-    }
-}
-
-// Tentukan ranking berdasarkan skor
-$rank = 1;
-arsort($skor); // Urutkan skor secara descending
-foreach ($skor as $i => $s) {
-    $ranking[$i] = $rank;
-    $rank++;
-}
-
-// Dapatkan alternatif dengan ranking terbaik (ranking == 1)
-$alternatif_terbaik = array_search(1, $ranking);
-
-// --- Akhir penentuan alternatif terbaik ---
 ?>
 
 <!DOCTYPE html>
@@ -323,15 +310,25 @@ $alternatif_terbaik = array_search(1, $ranking);
                     <h3>Matriks Agregat Dominasi</h3>
                     <?php echo print_table($matrix_agregat, $alternatif, $alternatif); ?>
 
-                    
-                    <h3>Alternatif Terbaik</h3>
-                    <p><?php 
-                        if (isset($alternatif[$alternatif_terbaik])) {
-                            echo $alternatif[$alternatif_terbaik]['nama_alternatif']; 
-                        } else {
-                            echo "Tidak ada alternatif terbaik.";
-                        }
-                    ?></p>
+                    <h3>Hasil Perankingan</h3>
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Nama Alternatif</th>
+                                <th>Total</th>
+                                <th>Rank</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <?php foreach ($peringkat as $row): ?>
+                                <tr>
+                                    <td><?php echo $row['nama_alternatif']; ?></td>
+                                    <td><?php echo $row['total']; ?></td>
+                                    <td><?php echo $row['rank']; ?></td>
+                                </tr>
+                            <?php endforeach; ?>
+                        </tbody>
+                    </table>
 
                 </div>
             </div>
@@ -340,36 +337,37 @@ $alternatif_terbaik = array_search(1, $ranking);
 
     <?php
     // Fungsi untuk menampilkan data dalam bentuk tabel
-// Fungsi untuk menampilkan data dalam bentuk tabel
-function print_table($data, $row_labels, $col_labels = null) {
-    $output = "<table class='data-table'>";
-    // Header tabel
-    $output .= "<thead><tr>";
-    if ($col_labels) {
-        $output .= "<th></th>"; // Sel kosong di pojok kiri atas
-        foreach ($col_labels as $col_key => $col_label) {
-            $output .= "<th>" . (is_array($col_label) ? $col_label['nama_kriteria'] : $col_key) . "</th>";
-        }
-    }
-    $output .= "</tr></thead>";
-    // Body tabel
-    $output .= "<tbody>";
-    foreach ($row_labels as $row_key => $row_label) {
-        $output .= "<tr>";
-        $output .= "<th>" . (is_array($row_label) ? $row_label['nama_alternatif'] : $row_key) . "</th>";
+    function print_table($data, $row_labels, $col_labels = null) {
+        $output = "<table class='data-table'>";
+        // Header tabel
+        $output .= "<thead><tr>";
         if ($col_labels) {
+            $output .= "<th></th>"; // Sel kosong di pojok kiri atas
             foreach ($col_labels as $col_key => $col_label) {
-                $output .= "<td>" . (isset($data[$row_key][$col_key]) ? $data[$row_key][$col_key] : '-') . "</td>";
-            }
-        } else {
-            foreach ($data[$row_key] as $value) {
-                $output .= "<td>$value</td>";
+                $output .= "<th>" . (is_array($col_label) && isset($col_label['nama_kriteria']) ? $col_label['nama_kriteria'] : $col_key) . "</th>";
             }
         }
-        $output .= "</tr>";
+        $output .= "</tr></thead>";
+        // Body tabel
+        $output .= "<tbody>";
+        foreach ($row_labels as $row_key => $row_label) {
+            $output .= "<tr>";
+            $output .= "<th>" . (is_array($row_label) ? $row_label['nama_alternatif'] : $row_key) . "</th>";
+            if ($col_labels) {
+                foreach ($col_labels as $col_key => $col_label) {
+                    $output .= "<td>" . (isset($data[$row_key][$col_key]) ? $data[$row_key][$col_key] : '-') . "</td>";
+                }
+            } else {
+                foreach ($data[$row_key] as $value) {
+                    $output .= "<td>$value</td>";
+                }
+            }
+            $output .= "</tr>";
+        }
+        $output .= "</tbody>";
+        $output .= "</table>";
+        return $output;
     }
-    $output .= "</tbody>";
-    $output .= "</table>";
-    return $output;
-}
-?>
+    ?>
+</body>
+</html>

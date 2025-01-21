@@ -19,6 +19,7 @@
       <li><a href="dataperhitungan.php">Data Perhitungan</a></li>
       <li><a href="datanilaiakhir.php">Data Hasil Akhir</a></li>
       <li><a href="datapengguna.php">Data Pengguna</a></li>
+      <li><a href="logout.php">Logout</a></li>
     </ul>
   </div>
 
@@ -37,6 +38,7 @@
       <a href="dataperhitungan.php" class="card">Data Perhitungan</a>
       <a href="datanilaiakhir.php" class="card">Data Hasil Akhir</a>
       <a href="datapengguna.php" class="card">Data Pengguna</a>
+      
     </div>
   </div>
 </body>

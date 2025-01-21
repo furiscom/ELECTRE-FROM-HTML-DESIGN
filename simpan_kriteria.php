@@ -10,21 +10,21 @@ $kode_kriteria_lama = $_POST['kode_kriteria_lama'];
 $kode_kriteria = $_POST['kode_kriteria'];
 $nama_kriteria = $_POST['nama_kriteria'];
 $bobot = $_POST['bobot'];
-$jenis = $_POST['jenis'];
+
 
 if ($kode_kriteria_lama) {
     // Update data kriteria
     $sql = "UPDATE kriteria SET 
             kode_kriteria = '$kode_kriteria',
             nama_kriteria = '$nama_kriteria',
-            bobot = '$bobot',
-            jenis = '$jenis'
+            bobot = '$bobot'
+            
             WHERE kode_kriteria = '$kode_kriteria_lama'";
     $message = "Data kriteria berhasil diupdate!";
 } else {
     // Insert data kriteria baru
-    $sql = "INSERT INTO kriteria (kode_kriteria, nama_kriteria, bobot, jenis) 
-            VALUES ('$kode_kriteria', '$nama_kriteria', '$bobot', '$jenis')";
+    $sql = "INSERT INTO kriteria (kode_kriteria, nama_kriteria, bobot) 
+            VALUES ('$kode_kriteria', '$nama_kriteria', '$bobot')";
     $message = "Data kriteria berhasil ditambahkan!";
 }
 
