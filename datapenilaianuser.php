@@ -10,7 +10,7 @@ $sqlAlternatif = "SELECT * FROM alternatif";
 $resultAlternatif = $conn->query($sqlAlternatif);
 
 // Ambil data kriteria
-$sqlKriteria = "SELECT kode_kriteria, nama_kriteria FROM kriteria";
+$sqlKriteria = "SELECT nama_kriteria,kode_kriteria FROM kriteria"; // Hanya mengambil nama kriteria
 $resultKriteria = $conn->query($sqlKriteria);
 
 // Ambil data penilaian
@@ -95,19 +95,15 @@ while ($row = $resultPenilaian->fetch_assoc()) {
 </head>
 <body>
     <div class="container">
-
         <nav class="sidebar">
             <div class="logo">
                 <span>SPK ELECTRE</span>
             </div>
 
             <ul class="nav-links">
-            <li><a href="dasboardadmin.php">Dashboard</a></li>
-                <li><a href="dataalternatif.php">Data Alternatif</a></li>
-                <li><a href="datakriteria.php">Data Kriteria</a></li>
-                <li><a href="datapenilaian.php">Data Penilaian</a></li>
-                <li><a href="datanilaiakhir.php">Data Nilai Akhir</a></li>
-                <li><a href="datapengguna.php">Data Pengguna</a></li>
+                <li><a href="dasboardadmin.php"><i class="fas fa-tachometer-alt"></i> Dashboard</a></li>
+                <li class="active"><a href="#"><i class="fas fa-star"></i> Data Penilaian</a></li>
+                <li><a href="datanilaiakhiruser.php"><i class="fas fa-chart-bar"></i> Data Hasil Akhir</a></li>
                 <li><a href="logout.php">Logout</a></li>
             </ul>
         </nav>
@@ -145,7 +141,7 @@ while ($row = $resultPenilaian->fetch_assoc()) {
                                     echo "<th>{$rowKriteria['nama_kriteria']}</th>";
                                 }
                               ?>
-                                <th>Aksi</th>
+                                <!-- <th>Aksi</th> -->
                             </tr>
                         </thead>
                         <tbody>
@@ -166,20 +162,19 @@ while ($row = $resultPenilaian->fetch_assoc()) {
                                     $namaKriteria = $rowKriteria['nama_kriteria'];
                                     $nilai = isset($penilaian[$namaAlternatif][$namaKriteria])? $penilaian[$namaAlternatif][$namaKriteria]: '';
 
-                                    echo "<td data-alternatif='$kodeAlternatif' data-kriteria='$kodeKriteria'>"; // Tambahkan data attribute
+                                    echo "<td>";
                                     if ($nilai!== '') {
                                         echo $nilai;
                                     } else {
                                         // Menampilkan tombol "Beri Nilai" jika belum ada nilai
-                                        echo "<button class='btn-edit' onclick=\"openModal('$kodeAlternatif')\">Beri Nilai</button>";
+                                        echo "<button class='btn-edit' onclick=\"openModal('$kodeAlternatif', '$kodeKriteria')\">Beri Nilai</button>";
                                     }
                                     echo "</td>";
                                 }
 
-                                // Menampilkan tombol edit
+                                // Menampilkan tombol edit 
                                 echo "<td>";
-                                echo "<button class='btn-edit' onclick=\"openModal('$kodeAlternatif')\"><i class='fas fa-edit'></i></button>";
-                                echo "<button class='btn-delete' onclick=\"hapusPenilaian('$kodeAlternatif')\"><i class='fas fa-trash'></i></button>"; // Tambahkan tombol hapus
+                                // echo "<button class='btn-edit' onclick=\"openModal('$kodeAlternatif')\"><i class='fas fa-edit'></i></button>";
                                 echo "</td>";
                                 echo "</tr>";
                             }
@@ -195,18 +190,12 @@ while ($row = $resultPenilaian->fetch_assoc()) {
                     <h2>Beri Penilaian</h2>
                     <form id="dataForm">
                         <input type="hidden" id="kode_alternatif" name="kode_alternatif">
-                        <?php
-                        // Fetch kriteria names
-                        $resultKriteria->data_seek(0); // Reset pointer result kriteria
-                        while ($rowKriteria = $resultKriteria->fetch_assoc()) {
-                            $kodeKriteria = $rowKriteria['kode_kriteria'];
-                            echo "<div class='form-group'>";
-                            echo "<label for='nilai[$kodeKriteria]'>{$rowKriteria['nama_kriteria']}:</label>";
-                            echo "<input type='number' id='nilai[$kodeKriteria]' name='nilai[$kodeKriteria]' required>";
-                            echo "</div>";
-                        }
-                      ?>
-                        <button type="button" class="btn-submit" onclick="editPenilaian()">Simpan</button>
+                        <input type="hidden" id="kode_kriteria" name="kode_kriteria">
+                        <div class="form-group">
+                            <label for="nilai">Nilai:</label>
+                            <input type="number" id="nilai" name="nilai" required>
+                        </div>
+                        <button type="submit" class="btn-submit">Simpan</button>
                     </form>
                 </div>
             </div>
@@ -215,39 +204,13 @@ while ($row = $resultPenilaian->fetch_assoc()) {
     </div>
 
     <script>
-        // Define openModal() here
-        function hapusPenilaian(kodeAlternatif) {
-    if (confirm("Apakah Anda yakin ingin menghapus semua penilaian untuk alternatif ini?")) {
-        // Kirim permintaan hapus ke server (Anda perlu membuat file hapus_penilaian.php)
-        var xhr = new XMLHttpRequest();
-        xhr.open("POST", "hapus_penilaian.php", true);
-        xhr.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
-        xhr.onreadystatechange = function() {
-            if (this.readyState == 4 && this.status == 200) {
-                alert(this.responseText);
-                location.reload();
-            }
-        };
-        xhr.send("kode_alternatif=" + kodeAlternatif);
-    }
-}
-        function openModal(kodeAlternatif = null) {
+        function openModal(kodeAlternatif = null, kodeKriteria = null) {
             document.getElementById('dataModal').style.display = 'block';
             if (kodeAlternatif!== null) {
                 document.getElementById('kode_alternatif').value = kodeAlternatif;
-
-                // Ambil data nilai dari server berdasarkan kodeAlternatif
-                var xhr = new XMLHttpRequest();
-                xhr.open("GET", "get_penilaian.php?kode_alternatif=" + kodeAlternatif, true);
-                xhr.onreadystatechange = function() {
-                    if (this.readyState == 4 && this.status == 200) {
-                        var data = JSON.parse(this.responseText);
-                        for (var kodeKriteria in data) {
-                            document.getElementById(`nilai[${kodeKriteria}]`).value = data[kodeKriteria];
-                        }
-                    }
-                };
-                xhr.send();
+            }
+            if (kodeKriteria!== null) {
+                document.getElementById('kode_kriteria').value = kodeKriteria;
             }
         }
 
@@ -255,19 +218,12 @@ while ($row = $resultPenilaian->fetch_assoc()) {
             document.getElementById('dataModal').style.display = 'none';
         }
 
-        function editPenilaian() {
-            // Ambil data dari form
+        document.getElementById('dataForm').addEventListener('submit', function(event) {
+            event.preventDefault();
+
             var kodeAlternatif = document.getElementById('kode_alternatif').value;
-            
-            // Ambil nilai dari setiap input field
-            var nilai = {};
-            <?php
-            $resultKriteria->data_seek(0); // Reset pointer result kriteria
-            while ($rowKriteria = $resultKriteria->fetch_assoc()) {
-                $kodeKriteria = $rowKriteria['kode_kriteria'];
-                echo "nilai['$kodeKriteria'] = document.getElementById('nilai[$kodeKriteria]').value;";
-            }
-          ?>
+            var kodeKriteria = document.getElementById('kode_kriteria').value;
+            var nilai = document.getElementById('nilai').value;
 
             // Kirim data ke server menggunakan AJAX
             var xhr = new XMLHttpRequest();
@@ -280,19 +236,7 @@ while ($row = $resultPenilaian->fetch_assoc()) {
                     location.reload();
                 }
             };
-            // Mengirim data dengan format kode_alternatif=...&nilai[C1]=...&nilai[C2]=...
-            var data = "kode_alternatif=" + kodeAlternatif;
-            for (var key in nilai) {
-                data += "&nilai[" + key + "]=" + nilai[key];
-            }
-            xhr.send(data);
-        }
-
-        // DOMContentLoaded event listener
-        document.addEventListener('DOMContentLoaded', function() {
-
-            //... (kode event listener untuk form submit)
-
+            xhr.send("kode_alternatif=" + kodeAlternatif + "&kode_kriteria=" + kodeKriteria + "&nilai=" + nilai);
         });
     </script>
 </body>

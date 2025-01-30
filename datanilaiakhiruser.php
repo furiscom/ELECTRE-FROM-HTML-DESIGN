@@ -55,13 +55,10 @@ $result = $conn->query($sql);?>
     <div class="sidebar">
         <h2>SPK ELECTRE</h2>
         <ul>
-        <li><a href="dasboardadmin.php">Dashboard</a></li>
-                <li><a href="dataalternatif.php">Data Alternatif</a></li>
-                <li><a href="datakriteria.php">Data Kriteria</a></li>
-                <li><a href="datapenilaian.php">Data Penilaian</a></li>
-                <li><a href="datanilaiakhir.php">Data Nilai Akhir</a></li>
-                <li><a href="datapengguna.php">Data Pengguna</a></li>
-                <li><a href="logout.php">Logout</a></li>
+            <li><a href="dasboardadmin.php">Dashboard</a></li>
+            <li><a href="datapenilaianuser.php">Data Penilaian</a></li>
+            <li class="active"><a href="#">Data Hasil Akhir</a></li>
+            <li><a href="logout.php">Logout</a></li>
         </ul>
     </div>
 

@@ -6,7 +6,7 @@ if ($conn->connect_error) {
 }
 
 // Query untuk mengambil data kriteria
-$sql = "SELECT * FROM kriteria";
+$sql = "SELECT * FROM kriteria order by id";
 $result = $conn->query($sql);
 ?>
 

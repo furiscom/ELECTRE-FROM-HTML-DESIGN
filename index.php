@@ -16,6 +16,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     if ($result->num_rows > 0) {
         $row = $result->fetch_assoc();
         $_SESSION['email'] = $email;
+        $_SESSION['nama'] = $row['nama'];
         $_SESSION['level'] = $row['level'];
         header("Location: dasboardadmin.php");
         exit;

@@ -11,23 +11,38 @@
     <div class="logo">
       SPK ELECTRE
     </div>
-    <ul class="menu">
-      <li><a href="dasboardadmin.php">Dashboard</a></li>
-      <li><a href="datakriteria.php">Data Kriteria</a></li>
-      <li><a href="dataalternatif.php">Data Alternatif</a></li>
-      <li><a href="datapenilaian.php">Data Penilaian</a></li>
-      <li><a href="dataperhitungan.php">Data Perhitungan</a></li>
-      <li><a href="datanilaiakhir.php">Data Hasil Akhir</a></li>
-      <li><a href="datapengguna.php">Data Pengguna</a></li>
-      <li><a href="logout.php">Logout</a></li>
-    </ul>
+    
+    
+        <ul class="menu">
+          
+            <?php 
+            session_start();
+            $role = $_SESSION['level'];
+            $nama= $_SESSION['nama'];
+            if ($role == 'admin') {?>
+                <li><a href="dasboardadmin.php">Dashboard</a></li>
+                <li><a href="dataalternatif.php">Data Alternatif</a></li>
+                <li><a href="datakriteria.php">Data Kriteria</a></li>
+                <li><a href="datapenilaian.php">Data Penilaian</a></li>
+                <li><a href="datanilaiakhir.php">Data Nilai Akhir</a></li>
+                <li><a href="datapengguna.php">Data Pengguna</a></li>
+                <li><a href="logout.php">Logout</a></li>
+            <?php } else if ($role == 'user') {?>
+              <li><a href="dasboardadmin.php">Dashboard</a></li>
+                <li><a href="datapenilaianuser.php">Data Penilaian</a></li>
+                <li><a href="datanilaiakhiruser.php">Data Nilai Akhir</a></li>
+                <li><a href="logout.php">Logout</a></li>
+            <?php }?>
+        </ul>
+
+
   </div>
 
   <div class="main-content">
     <header>
       <div class="welcome-message">
         <h1>Dashboard</h1>
-        <p>Selamat datang <strong>ADMIN!</strong> Anda bisa mengoperasikan sistem dengan wewenang tertentu melalui pilihan menu di bawah.</p>
+        <p>Selamat datang <strong><?php echo $nama   ?></strong> Anda bisa mengoperasikan sistem dengan wewenang tertentu melalui pilihan menu di bawah.</p>
       </div>
     </header>
 

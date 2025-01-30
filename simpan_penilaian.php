@@ -1,41 +1,38 @@
 <?php
+// Koneksi ke database
 $conn = new mysqli("localhost", "root", "", "electre");
 if ($conn->connect_error) {
-    die("Koneksi database gagal: " . $conn->connect_error);
+    die("Koneksi database gagal: ". $conn->connect_error);
 }
 
-$id_penilaian = $_POST['id_penilaian'];
-$kode_alternatif = $_POST['kode_alternatif'];
-$kode_kriteria = $_POST['kode_kriteria'];
-$nilai = $_POST['nilai'];
+if ($_SERVER["REQUEST_METHOD"] == "POST") {
+    $kodeAlternatif = $_POST["kode_alternatif"];
+    $nilai = $_POST['nilai']; // Ambil data nilai
 
-if ($id_penilaian) { // Jika id_penilaian ada, lakukan UPDATE
-    $sql = "UPDATE penilaian SET
-                kode_alternatif = '$kode_alternatif',
-                kode_kriteria = '$kode_kriteria',
-                nilai = $nilai
-            WHERE id_penilaian = $id_penilaian";
-    $message = "Penilaian berhasil diupdate!";
-} else { // Jika id_penilaian tidak ada, lakukan INSERT
-    // Ambil id_penilaian terakhir
-    $sqlLastId = "SELECT MAX(id_penilaian) as last_id FROM penilaian";
-    $resultLastId = $conn->query($sqlLastId);
-    $rowLastId = $resultLastId->fetch_assoc();
-    $lastId = $rowLastId['last_id'];
+    // Update data penilaian untuk setiap kriteria
+    foreach ($nilai as $kodeKriteria => $nilaiKriteria) {
+        // Cek apakah data sudah ada
+        $sqlCek = "SELECT * FROM penilaian WHERE kode_alternatif = '$kodeAlternatif' AND kode_kriteria = '$kodeKriteria'";
+        $resultCek = $conn->query($sqlCek);
 
-    // Hitung id_penilaian baru
-    $newId = $lastId + 1;
+        if ($resultCek->num_rows > 0) {
+            // Update data
+            $sql = "UPDATE penilaian SET nilai = '$nilaiKriteria' WHERE kode_alternatif = '$kodeAlternatif' AND kode_kriteria = '$kodeKriteria'";
+            $message = "Data penilaian untuk kriteria '$kodeKriteria' berhasil diperbarui!";
+        } else {
+            // Insert data baru
+            $sql = "INSERT INTO penilaian (kode_alternatif, kode_kriteria, nilai) VALUES ('$kodeAlternatif', '$kodeKriteria', '$nilaiKriteria')";
+            $message = "Data penilaian untuk kriteria '$kodeKriteria' berhasil ditambahkan!";
+        }
 
-    $sql = "INSERT INTO penilaian (id_penilaian, kode_alternatif, kode_kriteria, nilai) 
-            VALUES ($newId, '$kode_alternatif', '$kode_kriteria', $nilai)";
-    $message = "Penilaian berhasil ditambahkan!";
+        if ($conn->query($sql) === TRUE) {
+            echo $message. "<br>"; // Menampilkan pesan sukses
+        } else {
+            echo "Error: ". $sql. "<br>". $conn->error; // Menampilkan pesan error jika query gagal
+        }
+    }
+
+    echo "Semua data penilaian berhasil diperbarui!"; // Menampilkan pesan sukses setelah semua kriteria diproses
 }
 
-if ($conn->query($sql) === TRUE) {
-    echo $message;
-} else {
-    echo "Error: " . $sql . "<br>" . $conn->error;
-}
-
-$conn->close();
-?>
+$conn->close();?>

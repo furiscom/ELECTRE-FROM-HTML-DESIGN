@@ -6,7 +6,7 @@ if ($conn->connect_error) {
 }
 
 // Query untuk mengambil data alternatif
-$sql = "SELECT * FROM alternatif";
+$sql = "SELECT * FROM alternatif ORDER BY id";
 $result = $conn->query($sql);
 
 ?>
