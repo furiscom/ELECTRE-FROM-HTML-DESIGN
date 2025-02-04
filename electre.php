@@ -1,4 +1,5 @@
-<?php 
+<?php
+
 // --- Fungsi untuk perhitungan ELECTRE ---
 
 // Fungsi normalisasi
@@ -35,6 +36,7 @@ function concordance($matrix_terbobot, $kriteria) {
     $matrix = [];
     $alternatif_keys = array_keys($matrix_terbobot);
     $jumlah_alternatif = count($alternatif_keys);
+
     for ($i = 0; $i < $jumlah_alternatif; $i++) {
         $alternatif_a = $alternatif_keys[$i];
         for ($j = 0; $j < $jumlah_alternatif; $j++) {
@@ -45,7 +47,6 @@ function concordance($matrix_terbobot, $kriteria) {
                     if (
                         ($data_kriteria['jenis'] == 'benefit' && $matrix_terbobot[$alternatif_a][$kode_kriteria] >= $matrix_terbobot[$alternatif_b][$kode_kriteria]) ||
                         ($data_kriteria['jenis'] == 'cost' && $matrix_terbobot[$alternatif_a][$kode_kriteria] <= $matrix_terbobot[$alternatif_b][$kode_kriteria])
-
                     ) {
                         $nilai_concordance += $data_kriteria['bobot'];
                     }
@@ -57,11 +58,29 @@ function concordance($matrix_terbobot, $kriteria) {
     return $matrix;
 }
 
-// Fungsi discordance
+// Fungsi discordance (diubah sesuai kode Python)
 function discordance($matrix_terbobot, $kriteria) {
     $matrix = [];
     $alternatif_keys = array_keys($matrix_terbobot);
     $jumlah_alternatif = count($alternatif_keys);
+    $delta = 0; // Inisialisasi delta
+
+    // Hitung Delta (perbedaan maksimum antar nilai kriteria)
+    foreach ($kriteria as $kode_kriteria => $data_kriteria) {
+        $max_diff = 0;
+        foreach ($alternatif_keys as $alt1) {
+            foreach ($alternatif_keys as $alt2) {
+               if(isset($matrix_terbobot[$alt1][$kode_kriteria]) && isset($matrix_terbobot[$alt2][$kode_kriteria])){
+                $diff = abs($matrix_terbobot[$alt1][$kode_kriteria] - $matrix_terbobot[$alt2][$kode_kriteria]);
+                $max_diff = max($max_diff, $diff);
+               }
+                
+            }
+        }
+        $delta = max($delta, $max_diff);
+    }
+
+
     for ($i = 0; $i < $jumlah_alternatif; $i++) {
         $alternatif_a = $alternatif_keys[$i];
         for ($j = 0; $j < $jumlah_alternatif; $j++) {
@@ -71,9 +90,13 @@ function discordance($matrix_terbobot, $kriteria) {
                 foreach ($kriteria as $kode_kriteria => $data_kriteria) {
                     if (isset($matrix_terbobot[$alternatif_a][$kode_kriteria]) && isset($matrix_terbobot[$alternatif_b][$kode_kriteria])) {
                         $selisih = abs($matrix_terbobot[$alternatif_a][$kode_kriteria] - $matrix_terbobot[$alternatif_b][$kode_kriteria]);
-                        if ($selisih > $nilai_discordance) {
-                            $nilai_discordance = $selisih;
+                        
+                        if($delta != 0){
+                            $nilai_discordance = max($nilai_discordance, $selisih / $delta); // Normalisasi dengan delta
+                        }else{
+                            $nilai_discordance = 0;
                         }
+                        
                     }
                 }
                 $matrix[$alternatif_a][$alternatif_b] = $nilai_discordance;
@@ -81,6 +104,69 @@ function discordance($matrix_terbobot, $kriteria) {
         }
     }
     return $matrix;
+}
+function concordance_discordance($data_dict, $weights) {
+    $delta = __get_delta($data_dict);
+    $alternatives = array_keys($data_dict);
+    $num_alternatives = count($alternatives);
+
+    $concordance_matrix = array_fill(0, $num_alternatives, array_fill(0, $num_alternatives, 0)); // Initialize with 0s
+    $discordance_matrix = array_fill(0, $num_alternatives, array_fill(0, $num_alternatives, 0));
+
+    // Iterate through all pairs of alternatives (combinations)
+    for ($i = 0; $i < $num_alternatives; $i++) {
+        for ($j = $i + 1; $j < $num_alternatives; $j++) { // Avoid comparing an alternative to itself and avoid redundant comparisons
+            $fst_key = $alternatives[$i];
+            $scd_key = $alternatives[$j];
+
+            $concordance_f_s =[];
+            $concordance_s_f =[];
+            $discordance_f_s =[];
+            $discordance_s_f =[];
+
+            foreach ($weights as $k => $w) { // Assuming $weights is an associative array with keys matching the data_dict keys
+                $val_fst = $data_dict[$fst_key][$k];
+                $val_scd = $data_dict[$scd_key][$k];
+
+                $diff_f_s = ($val_scd - $val_fst) / $delta;
+                $diff_s_f = ($val_fst - $val_scd) / $delta;
+
+                $discordance_f_s = $diff_f_s;
+                $discordance_s_f = $diff_s_f;
+
+                if ($val_fst >= $val_scd) {
+                    $concordance_f_s = $w;
+                }
+                if ($val_fst <= $val_scd) {
+                    $concordance_s_f = $w;
+                }
+            }
+
+            $discordance_matrix[$i][$j] = max($discordance_f_s);
+            $discordance_matrix[$j][$i] = max($discordance_s_f);
+            $concordance_matrix[$i][$j] = array_sum($concordance_f_s);
+            $concordance_matrix[$j][$i] = array_sum($concordance_s_f);
+        }
+    }
+
+    return [$concordance_matrix, $discordance_matrix];
+}
+
+
+function __get_delta($data_dict) {
+    $max_diff = 0;
+    foreach ($data_dict as $row) {
+        foreach ($row as $val) {
+            foreach ($data_dict as $other_row) {
+                foreach($other_row as $other_val){
+                    $diff = abs($val - $other_val);
+                    $max_diff = max($max_diff, $diff);
+                }
+
+            }
+        }
+    }
+    return $max_diff;
 }
 
 // Fungsi threshold
@@ -135,21 +221,57 @@ function alternatifDominan($matrix_agregat) {
     }
     return $alternatif_dominan;
 }
+// ... (fungsi threshold, dominasi, agregat, dan alternatifDominan tidak perlu diubah) ...
 
-// --- Akhir fungsi untuk perhitungan ELECTRE ---
 
-// --- Lakukan perhitungan ---
-// $matrix_ternormalisasi = normalisasi($penilaian, $alternatif, $kriteria);
-// $matrix_terbobot = terbobot($matrix_ternormalisasi, $kriteria);
-// $matrix_concordance = concordance($matrix_terbobot, $kriteria);
-// $matrix_discordance = discordance($matrix_terbobot, $kriteria);
 
-// $threshold_concordance = threshold($matrix_concordance);
-// $threshold_discordance = threshold($matrix_discordance);
 
-// $matrix_dominasi_concordance = dominasi($matrix_concordance, $threshold_concordance);
-// $matrix_dominasi_discordance = dominasi($matrix_discordance, $threshold_discordance);
 
-// $matrix_agregat = agregat($matrix_dominasi_concordance, $matrix_dominasi_discordance);
-// $alternatif_dominan = alternatifDominan($matrix_agregat);
+$matrix_ternormalisasi = normalisasi($penilaian, $alternatif, $kriteria);
+$matrix_terbobot = terbobot($matrix_ternormalisasi, $kriteria);
+
+$matrix_concordance = concordance($matrix_terbobot, $kriteria);
+$matrix_discordance = discordance($matrix_terbobot, $kriteria);
+
+$threshold_concordance = threshold($matrix_concordance);
+$threshold_discordance = threshold($matrix_discordance);
+
+$matrix_dominasi_concordance = dominasi($matrix_concordance, $threshold_concordance);
+$matrix_dominasi_discordance = dominasi($matrix_discordance, $threshold_discordance);
+
+$matrix_agregat = agregat($matrix_dominasi_concordance, $matrix_dominasi_discordance);
+$alternatif_dominan = alternatifDominan($matrix_agregat);
+
+// --- Tampilkan hasil (sesuaikan dengan kebutuhan) ---
+echo "Matrix Normalisasi:\n";
+print_r($matrix_ternormalisasi);
+
+echo "\nMatrix Terbobot:\n";
+print_r($matrix_terbobot);
+
+echo "\nMatrix Himpunan concordance     discordance:\n";
+// Panggil fungsi concordance_discordance
+print_r(list($concordance_matrix, $discordance_matrix) = concordance_discordance($data_dict, $weights));
+
+echo "\nMatrix Concordance:\n";
+print_r($matrix_concordance);
+
+echo "\nMatrix Discordance:\n";
+print_r($matrix_discordance);
+
+echo "\nThreshold Concordance: " . $threshold_concordance . "\n";
+echo "Threshold Discordance: " . $threshold_discordance . "\n";
+
+echo "\nMatrix Dominasi Concordance:\n";
+print_r($matrix_dominasi_concordance);
+
+echo "\nMatrix Dominasi Discordance:\n";
+print_r($matrix_dominasi_discordance);
+
+echo "\nMatrix Agregat:\n";
+print_r($matrix_agregat);
+
+echo "\nAlternatif Dominan: ";
+print_r($alternatif_dominan);
+
 ?>

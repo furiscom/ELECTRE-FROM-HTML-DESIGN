@@ -284,8 +284,6 @@ $matrix_agregat = matriks_dominan_keseluruhan($matrix_dominan_concordance, $matr
 // --- Perankingan ---
 
 // Query untuk mengambil data hasil perankingan (sama seperti di datanilaiakhir.php)
-
-// Query untuk mengambil data hasil perankingan
 $sql = "SELECT
             a.nama_alternatif,
             SUM(p.nilai * k.bobot) AS total,
@@ -307,8 +305,7 @@ $sql = "SELECT
         INNER JOIN
             kriteria k ON p.kode_kriteria = k.kode_kriteria
         GROUP BY
-            a.nama_alternatif
-        ORDER BY `rank` ASC"; // Menambahkan ORDER BY untuk mengurutkan berdasarkan rank
+            a.nama_alternatif";
 
 $result = $conn->query($sql);
 

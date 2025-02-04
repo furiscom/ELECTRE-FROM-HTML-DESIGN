@@ -71,7 +71,7 @@ $result = $conn->query($sql);
                 <li><a href="datakriteria.php"><i class="fas fa-list"></i> Data Kriteria</a></li>
                 <li class="active"><a href="#"><i class="fas fa-users"></i> Data Alternatif</a></li>
                 <li><a href="datapenilaian.php"><i class="fas fa-star"></i> Data Penilaian</a></li>
-                <li><a href="#"><i class="fas fa-calculator"></i> Data Perhitungan</a></li>
+                <li><a href="dataperhitungan.php"><i class="fas fa-calculator"></i> Data Perhitungan</a></li>
                 <li><a href="datanilaiakhir.php"><i class="fas fa-chart-bar"></i> Data Hasil Akhir</a></li>
                 <li class="section-title">MASTER USER</li>
                 <li><a href="datapengguna.php"><i class="fas fa-user"></i> Data Pengguna</a></li>

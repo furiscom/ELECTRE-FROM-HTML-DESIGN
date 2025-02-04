@@ -59,6 +59,7 @@ $result = $conn->query($sql);?>
                 <li><a href="dataalternatif.php">Data Alternatif</a></li>
                 <li><a href="datakriteria.php">Data Kriteria</a></li>
                 <li><a href="datapenilaian.php">Data Penilaian</a></li>
+                <li>  <a href="dataperhitungan.php" class="card">Data Perhitungan</a></li>
                 <li><a href="datanilaiakhir.php">Data Nilai Akhir</a></li>
                 <li><a href="datapengguna.php">Data Pengguna</a></li>
                 <li><a href="logout.php">Logout</a></li>

@@ -6,11 +6,11 @@ if ($conn->connect_error) {
 }
 
 // Ambil data alternatif
-$sqlAlternatif = "SELECT * FROM alternatif";
+$sqlAlternatif = "SELECT * FROM alternatif order by id";
 $resultAlternatif = $conn->query($sqlAlternatif);
 
 // Ambil data kriteria
-$sqlKriteria = "SELECT kode_kriteria, nama_kriteria FROM kriteria";
+$sqlKriteria = "SELECT kode_kriteria, nama_kriteria FROM kriteria order by id";
 $resultKriteria = $conn->query($sqlKriteria);
 
 // Ambil data penilaian
@@ -106,6 +106,7 @@ while ($row = $resultPenilaian->fetch_assoc()) {
                 <li><a href="dataalternatif.php">Data Alternatif</a></li>
                 <li><a href="datakriteria.php">Data Kriteria</a></li>
                 <li><a href="datapenilaian.php">Data Penilaian</a></li>
+              <li>  <a href="dataperhitungan.php" >Data Perhitungan</a></li>
                 <li><a href="datanilaiakhir.php">Data Nilai Akhir</a></li>
                 <li><a href="datapengguna.php">Data Pengguna</a></li>
                 <li><a href="logout.php">Logout</a></li>
